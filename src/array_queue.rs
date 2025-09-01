@@ -243,10 +243,9 @@ impl<'a, T, const N: usize> Iterator for ArrayQueueMutIterator<'a, T, N> {
             return None;
         }
 
-        let i = self.queue.index(self.first);
-        let x = &mut self.queue.array.as_mut()[i] as *mut T;
-        self.first += 1;
-        Some(unsafe { &mut *x })
+        let x = self.queue.element_mut(self.first);
+        self.first += x.is_some() as usize;
+        x
     }
 }
 
@@ -256,10 +255,9 @@ impl<'a, T, const N: usize> DoubleEndedIterator for ArrayQueueMutIterator<'a, T,
             return None;
         }
 
-        self.last -= 1;
-        let i = self.queue.index(self.last);
-        let x = &mut self.queue.array.as_mut()[i] as *mut T;
-        Some(unsafe { &mut *x })
+        let x = self.queue.element_mut(self.last);
+        self.last -= x.is_some() as usize;
+        x
     }
 }
 
