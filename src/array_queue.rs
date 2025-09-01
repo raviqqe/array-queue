@@ -1,5 +1,5 @@
 use crate::error::CapacityError;
-use core::mem::{MaybeUninit, replace};
+use core::mem::{MaybeUninit, replace, transmute};
 
 /// A queue backed by a fixed-size array.
 #[derive(Debug)]
@@ -245,7 +245,7 @@ impl<'a, T, const N: usize> Iterator for ArrayQueueMutIterator<'a, T, N> {
 
         let x = self.queue.element_mut(self.first);
         self.first += x.is_some() as usize;
-        x
+        x.map(|x| unsafe { transmute(x) })
     }
 }
 
@@ -257,7 +257,7 @@ impl<'a, T, const N: usize> DoubleEndedIterator for ArrayQueueMutIterator<'a, T,
 
         let x = self.queue.element_mut(self.last);
         self.last -= x.is_some() as usize;
-        x
+        x.map(|x| unsafe { transmute(x) })
     }
 }
 
