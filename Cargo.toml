@@ -2,6 +2,7 @@
 name = "array-queue"
 version = "0.3.3"
 authors = ["Yota Toyama <raviqqe@gmail.com>"]
+edition = "2024"
 description = "Fixed size bidirectional queues based on arrays"
 license = "MIT"
 
