@@ -69,7 +69,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         }
 
         let i = self.index(self.length);
-        forget(replace(&mut self.array.as_mut()[i], x.clone()));
+        forget(replace(&mut self.array[i], x.clone()));
         self.length += 1;
         Ok(())
     }
