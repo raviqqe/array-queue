@@ -1,4 +1,4 @@
-use core::mem::{drop, forget, replace, uninitialized, ManuallyDrop};
+use core::mem::{ManuallyDrop, drop, forget, replace, uninitialized};
 
 use arrayvec::Array;
 
@@ -119,7 +119,7 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
         self.length
     }
 
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
@@ -550,7 +550,7 @@ mod test {
             assert!(a.push_back(&Box::new(42)).is_ok());
         }
 
-        a.clone();
+        let _ = a.clone();
     }
 
     static mut FOO_SUM: usize = 0;
