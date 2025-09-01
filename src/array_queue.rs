@@ -134,15 +134,11 @@ impl<T, const N: usize> ArrayQueue<T, N> {
 
     /// Returns `true` if the queue is full.
     pub fn is_full(&self) -> bool {
-        self.len() == Self::capacity()
+        self.len() == N
     }
 
     fn index(&self, i: usize) -> usize {
-        (self.start + i) % Self::capacity()
-    }
-
-    fn capacity() -> usize {
-        A::capacity()
+        (self.start + i) % N
     }
 }
 
