@@ -68,7 +68,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     /// Pushes an element to the back of the queue.
     pub fn push_back(&mut self, x: &T) -> Result<(), CapacityError>
     where
-        <A as Array>::Item: Clone,
+        T: Clone,
     {
         if self.is_full() {
             return Err(CapacityError);
@@ -83,7 +83,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     /// Pushes an element to the front of the queue.
     pub fn push_front(&mut self, x: &<A as Array>::Item) -> Result<(), CapacityError>
     where
-        <A as Array>::Item: Clone,
+        T: Clone,
     {
         if self.is_full() {
             return Err(CapacityError);
@@ -96,7 +96,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Pops an element from the back of the queue.
-    pub fn pop_back(&mut self) -> Option<<A as Array>::Item> {
+    pub fn pop_back(&mut self) -> Option<T> {
         if self.is_empty() {
             None
         } else {
@@ -109,7 +109,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Pops an element from the front of the queue.
-    pub fn pop_front(&mut self) -> Option<<A as Array>::Item> {
+    pub fn pop_front(&mut self) -> Option<T> {
         if self.is_empty() {
             return None;
         }
@@ -146,10 +146,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 }
 
-impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Clone for ArrayQueue<A>
-where
-    <A as Array>::Item: Clone,
-{
+impl<T: Clone, const N: usize> Clone for ArrayQueue<A> {
     fn clone(&self) -> Self {
         let mut a = Self::new();
 
