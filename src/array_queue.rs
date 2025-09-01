@@ -313,6 +313,7 @@ impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> D
 #[cfg(test)]
 mod test {
     use super::*;
+    use alloc::boxed::Box;
 
     #[test]
     fn new() {
