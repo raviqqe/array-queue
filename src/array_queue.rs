@@ -20,17 +20,17 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Returns a reference to the first element of the queue, or `None` if it is empty.
-    pub fn first(&self) -> Option<&T> {
+    pub const fn first(&self) -> Option<&T> {
         self.element(0)
     }
 
     /// Returns a mutable reference to the first element of the queue, or `None` if it is empty.
-    pub fn first_mut(&mut self) -> Option<&mut T> {
+    pub const fn first_mut(&mut self) -> Option<&mut T> {
         self.element_mut(0)
     }
 
     /// Returns a reference to the last element of the queue, or `None` if it is empty.
-    pub fn last(&self) -> Option<&T> {
+    pub const fn last(&self) -> Option<&T> {
         if self.is_empty() {
             None
         } else {
@@ -39,7 +39,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Returns a mutable reference to the last element of the queue, or `None` if it is empty.
-    pub fn last_mut(&mut self) -> Option<&mut T> {
+    pub const fn last_mut(&mut self) -> Option<&mut T> {
         if self.is_empty() {
             None
         } else {
@@ -47,7 +47,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         }
     }
 
-    fn element(&self, index: usize) -> Option<&T> {
+    const fn element(&self, index: usize) -> Option<&T> {
         if index < self.length {
             let x = &self.array[self.index(index)];
 
@@ -57,7 +57,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         }
     }
 
-    fn element_mut(&mut self, index: usize) -> Option<&mut T> {
+    const fn element_mut(&mut self, index: usize) -> Option<&mut T> {
         if index < self.length {
             let x = &mut self.array[self.index(index)];
 
@@ -105,7 +105,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Pops an element from the front of the queue.
-    pub fn pop_front(&mut self) -> Option<T> {
+    pub const fn pop_front(&mut self) -> Option<T> {
         if self.is_empty() {
             None
         } else {
@@ -157,6 +157,7 @@ impl<T, const N: usize> Default for ArrayQueue<T, N> {
 
 impl<T, const N: usize> Drop for ArrayQueue<T, N> {
     fn drop(&mut self) {
+        #[expect(clippy::redundant_pattern_matching)]
         while let Some(_) = self.pop_back() {}
     }
 }
