@@ -101,7 +101,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
             None
         } else {
             let x = replace(&mut self.array.as_mut()[self.length - 1], unsafe {
-                uninitialized()
+                MaybeUninit::uninit()
             });
             self.length -= 1;
             Some(x)
@@ -115,7 +115,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         }
 
         let x = replace(&mut self.array.as_mut()[self.start], unsafe {
-            uninitialized()
+            MaybeUninit::uninit()
         });
         self.start = self.index(1);
         self.length -= 1;
@@ -163,7 +163,7 @@ impl<T, const N: usize> Default for ArrayQueue<T, N> {
 impl<T, const N: usize> Drop for ArrayQueue<T, N> {
     fn drop(&mut self) {
         for x in self {
-            drop(replace(x, unsafe { uninitialized() }));
+            drop(replace(x, unsafe { MaybeUninit::uninit() }));
         }
     }
 }
