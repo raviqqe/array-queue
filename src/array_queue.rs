@@ -1,6 +1,6 @@
 use crate::error::CapacityError;
 use arrayvec::Array;
-use core::mem::{ManuallyDrop, drop, forget, replace, uninitialized};
+use core::mem::{ManuallyDrop, MaybeUninit, drop, forget, replace};
 
 /// A queue backed by a fixed-size array.
 #[derive(Debug)]
@@ -14,7 +14,7 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
     /// Creates an empty queue.
     pub fn new() -> Self {
         Self {
-            array: unsafe { uninitialized() },
+            array: MaybeUninit::new(),
             start: 0,
             length: 0,
         }
