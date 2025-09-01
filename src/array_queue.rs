@@ -1,20 +1,19 @@
 use crate::error::CapacityError;
-use arrayvec::Array;
-use core::mem::{ManuallyDrop, MaybeUninit, drop, forget, replace};
+use core::mem::{MaybeUninit, drop, forget, replace};
 
 /// A queue backed by a fixed-size array.
 #[derive(Debug)]
-pub struct ArrayQueue<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> {
-    array: ManuallyDrop<A>,
+pub struct ArrayQueue<T, const N: usize> {
+    array: [MaybeUninit<T>; N],
     start: usize,
     length: usize,
 }
 
-impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> ArrayQueue<A> {
+impl<T, const N: usize> ArrayQueue<T, N> {
     /// Creates an empty queue.
     pub fn new() -> Self {
         Self {
-            array: MaybeUninit::new(),
+            array: Default::default(),
             start: 0,
             length: 0,
         }
@@ -99,14 +98,14 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
     /// Pops an element from the back of the queue.
     pub fn pop_back(&mut self) -> Option<<A as Array>::Item> {
         if self.is_empty() {
-            return None;
+            None
+        } else {
+            let x = replace(&mut self.array.as_mut()[self.length - 1], unsafe {
+                uninitialized()
+            });
+            self.length -= 1;
+            Some(x)
         }
-
-        let x = replace(&mut self.array.as_mut()[self.length - 1], unsafe {
-            uninitialized()
-        });
-        self.length -= 1;
-        Some(x)
     }
 
     /// Pops an element from the front of the queue.
@@ -317,13 +316,13 @@ mod test {
 
     #[test]
     fn new() {
-        ArrayQueue::<[usize; 1]>::new();
-        ArrayQueue::<[usize; 2]>::new();
+        ArrayQueue::<usize, 1>::new();
+        ArrayQueue::<usize, 2>::new();
     }
 
     #[test]
     fn first_and_last() {
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert_eq!(a.first(), None);
         assert_eq!(a.first_mut(), None);
@@ -347,7 +346,7 @@ mod test {
 
     #[test]
     fn push_back() {
-        let mut a: ArrayQueue<[usize; 1]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 1> = ArrayQueue::new();
 
         assert_eq!(a.len(), 0);
         assert!(a.push_back(&42).is_ok());
@@ -355,7 +354,7 @@ mod test {
         assert_eq!(a.push_back(&42), Err(CapacityError));
         assert_eq!(a.len(), 1);
 
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert_eq!(a.len(), 0);
         assert!(a.push_back(&42).is_ok());
@@ -368,7 +367,7 @@ mod test {
 
     #[test]
     fn push_front() {
-        let mut a: ArrayQueue<[usize; 1]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 1> = ArrayQueue::new();
 
         assert_eq!(a.len(), 0);
         assert!(a.push_front(&42).is_ok());
@@ -376,7 +375,7 @@ mod test {
         assert_eq!(a.push_front(&42), Err(CapacityError));
         assert_eq!(a.len(), 1);
 
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert_eq!(a.len(), 0);
         assert!(a.push_front(&1).is_ok());
@@ -393,14 +392,14 @@ mod test {
 
     #[test]
     fn pop_back() {
-        let mut a: ArrayQueue<[usize; 1]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 1> = ArrayQueue::new();
 
         assert!(a.push_back(&42).is_ok());
 
         assert_eq!(a.pop_back(), Some(42));
         assert_eq!(a.len(), 0);
 
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert!(a.push_back(&123).is_ok());
         assert!(a.push_back(&42).is_ok());
@@ -415,14 +414,14 @@ mod test {
 
     #[test]
     fn pop_front() {
-        let mut a: ArrayQueue<[usize; 1]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 1> = ArrayQueue::new();
 
         assert!(a.push_back(&42).is_ok());
 
         assert_eq!(a.pop_front(), Some(42));
         assert_eq!(a.len(), 0);
 
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert!(a.push_back(&123).is_ok());
         assert!(a.push_back(&42).is_ok());
@@ -437,7 +436,7 @@ mod test {
 
     #[test]
     fn push_and_pop_across_edges() {
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert!(a.push_back(&1).is_ok());
         assert!(a.push_back(&2).is_ok());
@@ -452,20 +451,20 @@ mod test {
 
     #[test]
     fn is_empty() {
-        let a: ArrayQueue<[usize; 1]> = ArrayQueue::new();
+        let a: ArrayQueue<usize, 1> = ArrayQueue::new();
         assert!(a.is_empty());
 
-        let a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let a: ArrayQueue<usize, 2> = ArrayQueue::new();
         assert!(a.is_empty());
     }
 
     #[test]
     fn is_full() {
-        let mut a: ArrayQueue<[usize; 1]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 1> = ArrayQueue::new();
         assert!(a.push_back(&0).is_ok());
         assert!(a.is_full());
 
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
         assert!(a.push_back(&0).is_ok());
         assert!(a.push_back(&0).is_ok());
         assert!(a.is_full());
@@ -473,7 +472,7 @@ mod test {
 
     #[test]
     fn iterator() {
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert!(a.push_back(&0).is_ok());
         assert!(a.push_back(&1).is_ok());
@@ -485,7 +484,7 @@ mod test {
 
     #[test]
     fn iterator_across_edges() {
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert!(a.push_back(&42).is_ok());
         a.pop_front();
@@ -499,7 +498,7 @@ mod test {
 
     #[test]
     fn iterate_forward_and_backward() {
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert!(a.push_back(&0).is_ok());
         assert!(a.push_back(&1).is_ok());
@@ -514,7 +513,7 @@ mod test {
 
     #[test]
     fn iterate_forward_and_backward_mutablly() {
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert!(a.push_back(&0).is_ok());
         assert!(a.push_back(&1).is_ok());
@@ -529,14 +528,14 @@ mod test {
 
     #[test]
     fn iterate_empty_queue() {
-        let a = ArrayQueue::<[usize; 0]>::new();
+        let a = ArrayQueue::<usize, 0>::new();
 
         for _ in a.into_iter() {}
     }
 
     #[test]
     fn iterator_mut() {
-        let mut a: ArrayQueue<[usize; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert!(a.push_back(&0).is_ok());
         assert!(a.push_back(&1).is_ok());
@@ -549,14 +548,14 @@ mod test {
 
     #[test]
     fn reference_elements() {
-        let mut a: ArrayQueue<[Box<usize>; 2]> = ArrayQueue::new();
+        let mut a: ArrayQueue<Box<usize>, 2> = ArrayQueue::new();
         assert!(a.push_back(&Box::new(42)).is_ok());
         assert!(a.push_front(&Box::new(42)).is_ok());
     }
 
     #[test]
     fn clone() {
-        let mut a: ArrayQueue<[Box<usize>; 32]> = ArrayQueue::new();
+        let mut a: ArrayQueue<Box<usize>, 32> = ArrayQueue::new();
 
         for _ in 0..32 {
             assert!(a.push_back(&Box::new(42)).is_ok());
@@ -582,7 +581,7 @@ mod test {
     fn no_drops_of_elements_on_push_back() {
         assert_eq!(unsafe { FOO_SUM }, 0);
 
-        let mut a: ArrayQueue<[Foo; 32]> = ArrayQueue::new();
+        let mut a: ArrayQueue<Foo, 32> = ArrayQueue::new();
 
         for _ in 0..32 {
             assert!(a.push_back(&Foo).is_ok());
@@ -612,7 +611,7 @@ mod test {
     fn drops_of_elements_on_pop_back() {
         assert_eq!(unsafe { BAR_SUM }, 0);
 
-        let mut a: ArrayQueue<[Bar; 32]> = ArrayQueue::new();
+        let mut a: ArrayQueue<Bar, 32> = ArrayQueue::new();
 
         for _ in 0..32 {
             assert!(a.push_back(&Bar).is_ok());
