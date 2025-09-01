@@ -105,7 +105,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
             self.start = self.index(1);
             self.length -= 1;
 
-            Some(x)
+            Some(unsafe { x.assume_init() })
         }
     }
 
