@@ -40,19 +40,22 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     fn element(&self, i: usize) -> Option<&T> {
-        if self.is_empty() {
-            None
+        if i < self.length {
+            let x = &self.array[self.index(i)];
+
+            Some(unsafe { x.assume_init_ref() })
         } else {
-            Some(&self.array.as_ref()[self.index(i)])
+            None
         }
     }
 
     fn element_mut(&mut self, i: usize) -> Option<&mut T> {
-        if self.is_empty() {
-            None
+        if i < self.length {
+            let x = &mut self.array[self.index(i)];
+
+            Some(unsafe { x.assume_init_mut() })
         } else {
-            let i = self.index(i);
-            Some(&mut self.array.as_mut()[i])
+            None
         }
     }
 
