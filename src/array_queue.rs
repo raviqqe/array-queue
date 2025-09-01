@@ -124,8 +124,8 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         self.len() == N
     }
 
-    fn index(&self, i: usize) -> usize {
-        (self.start + i) % N
+    fn index(&self, index: usize) -> usize {
+        (self.start + index) % N
     }
 }
 
