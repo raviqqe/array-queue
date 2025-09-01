@@ -149,7 +149,9 @@ impl<T, const N: usize> Default for ArrayQueue<T, N> {
 
 impl<T, const N: usize> Drop for ArrayQueue<T, N> {
     fn drop(&mut self) {
-        for _ in self {}
+        for _ in self {
+            // TODO
+        }
     }
 }
 
