@@ -1,4 +1,4 @@
-//! An arra queue.
+//! A queue backed by a fixed-size array.
 
 #![no_std]
 
