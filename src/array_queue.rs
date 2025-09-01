@@ -51,6 +51,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         if index < self.length {
             let x = &self.array[self.index(index)];
 
+            // SAFETY: We validate the element existence by the length check.
             Some(unsafe { x.assume_init_ref() })
         } else {
             None
@@ -61,22 +62,11 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         if index < self.length {
             let x = &mut self.array[self.index(index)];
 
+            // SAFETY: We validate the element existence by the length check.
             Some(unsafe { x.assume_init_mut() })
         } else {
             None
         }
-    }
-
-    /// Pushes an element to the back of the queue.
-    pub fn push_back(&mut self, x: T) -> Result<(), CapacityError> {
-        if self.is_full() {
-            return Err(CapacityError);
-        }
-
-        self.array[self.index(self.length)] = MaybeUninit::new(x);
-        self.length += 1;
-
-        Ok(())
     }
 
     /// Pushes an element to the front of the queue.
@@ -92,16 +82,16 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         Ok(())
     }
 
-    /// Pops an element from the back of the queue.
-    pub const fn pop_back(&mut self) -> Option<T> {
-        if self.is_empty() {
-            None
-        } else {
-            let x = replace(&mut self.array[self.length - 1], MaybeUninit::uninit());
-            self.length -= 1;
-
-            Some(unsafe { x.assume_init() })
+    /// Pushes an element to the back of the queue.
+    pub fn push_back(&mut self, x: T) -> Result<(), CapacityError> {
+        if self.is_full() {
+            return Err(CapacityError);
         }
+
+        self.array[self.index(self.length)] = MaybeUninit::new(x);
+        self.length += 1;
+
+        Ok(())
     }
 
     /// Pops an element from the front of the queue.
@@ -113,6 +103,20 @@ impl<T, const N: usize> ArrayQueue<T, N> {
             self.start = self.index(1);
             self.length -= 1;
 
+            // SAFETY: An element exists at the first index.
+            Some(unsafe { x.assume_init() })
+        }
+    }
+
+    /// Pops an element from the back of the queue.
+    pub const fn pop_back(&mut self) -> Option<T> {
+        if self.is_empty() {
+            None
+        } else {
+            let x = replace(&mut self.array[self.length - 1], MaybeUninit::uninit());
+            self.length -= 1;
+
+            // SAFETY: An element exists at the last index.
             Some(unsafe { x.assume_init() })
         }
     }
@@ -252,6 +256,7 @@ impl<'a, T, const N: usize> Iterator for ArrayQueueMutIterator<'a, T, N> {
 
         let x = self.queue.element_mut(self.first);
         self.first += x.is_some() as usize;
+        // SAFETY: We do not modify the `queue` field during an iteration.
         x.map(|x| unsafe { transmute(x) })
     }
 }
@@ -264,6 +269,7 @@ impl<'a, T, const N: usize> DoubleEndedIterator for ArrayQueueMutIterator<'a, T,
 
         let x = self.queue.element_mut(self.last - 1);
         self.last -= x.is_some() as usize;
+        // SAFETY: We do not modify the `queue` field during an iteration.
         x.map(|x| unsafe { transmute(x) })
     }
 }
