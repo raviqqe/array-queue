@@ -7,7 +7,7 @@ description = "Fixed size bidirectional queues based on arrays"
 license = "MIT"
 
 [dependencies]
-arrayvec = "0.4"
+arrayvec = "0.7"
 
 [lints.clippy]
 alloc_instead_of_core = "deny"
