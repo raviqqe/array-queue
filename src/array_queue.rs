@@ -138,13 +138,13 @@ impl<T, const N: usize> ArrayQueue<T, N> {
 
 impl<T: Clone, const N: usize> Clone for ArrayQueue<T, N> {
     fn clone(&self) -> Self {
-        let mut a = Self::new();
+        let mut queue = Self::new();
 
         for x in self {
-            a.push_back(x).unwrap();
+            queue.push_back(x.clone()).unwrap();
         }
 
-        a
+        queue
     }
 }
 
