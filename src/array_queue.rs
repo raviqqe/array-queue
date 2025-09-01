@@ -1,9 +1,8 @@
+use crate::error::CapacityError;
+use arrayvec::Array;
 use core::mem::{ManuallyDrop, drop, forget, replace, uninitialized};
 
-use arrayvec::Array;
-
-use super::error::CapacityError;
-
+/// A queue backed by a fixed-size array.
 #[derive(Debug)]
 pub struct ArrayQueue<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> {
     array: ManuallyDrop<A>,
@@ -12,6 +11,7 @@ pub struct ArrayQueue<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Arra
 }
 
 impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> ArrayQueue<A> {
+    /// Creates an empty queue.
     pub fn new() -> Self {
         Self {
             array: unsafe { uninitialized() },
@@ -20,14 +20,17 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
         }
     }
 
+    /// Returns a reference to the first element of the queue, or `None` if it is empty.
     pub fn first(&self) -> Option<&<A as Array>::Item> {
         self.element(0)
     }
 
+    /// Returns a mutable reference to the first element of the queue, or `None` if it is empty.
     pub fn first_mut(&mut self) -> Option<&mut <A as Array>::Item> {
         self.element_mut(0)
     }
 
+    /// Returns a reference to the last element of the queue, or `None` if it is empty.
     pub fn last(&self) -> Option<&<A as Array>::Item> {
         if self.is_empty() {
             return None;
@@ -36,6 +39,7 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
         self.element(self.length - 1)
     }
 
+    /// Returns a mutable reference to the last element of the queue, or `None` if it is empty.
     pub fn last_mut(&mut self) -> Option<&mut <A as Array>::Item> {
         if self.is_empty() {
             return None;
@@ -62,6 +66,7 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
         }
     }
 
+    /// Pushes an element to the back of the queue.
     pub fn push_back(&mut self, x: &<A as Array>::Item) -> Result<(), CapacityError>
     where
         <A as Array>::Item: Clone,
@@ -76,6 +81,7 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
         Ok(())
     }
 
+    /// Pushes an element to the front of the queue.
     pub fn push_front(&mut self, x: &<A as Array>::Item) -> Result<(), CapacityError>
     where
         <A as Array>::Item: Clone,
@@ -90,6 +96,7 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
         Ok(())
     }
 
+    /// Pops an element from the back of the queue.
     pub fn pop_back(&mut self) -> Option<<A as Array>::Item> {
         if self.is_empty() {
             return None;
@@ -102,6 +109,7 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
         Some(x)
     }
 
+    /// Pops an element from the fonrt of the queue.
     pub fn pop_front(&mut self) -> Option<<A as Array>::Item> {
         if self.is_empty() {
             return None;
@@ -115,14 +123,17 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
         Some(x)
     }
 
+    /// Returns the number of elements in the queue.
     pub const fn len(&self) -> usize {
         self.length
     }
 
+    /// Returns `true` if the queue is empty.
     pub const fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
+    /// Returns `true` if the queue is full.
     pub fn is_full(&self) -> bool {
         self.len() == Self::capacity()
     }

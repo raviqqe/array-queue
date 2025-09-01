@@ -1,4 +1,6 @@
-extern crate arrayvec;
+//! An arra queue.
+
+#![no_std]
 
 mod array_queue;
 mod error;
