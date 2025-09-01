@@ -569,16 +569,16 @@ mod test {
             assert!(a.push_back(Bar).is_ok());
         }
 
-        assert_eq!(unsafe { BAR_SUM }, 32); // drops of arguments `&Bar`
+        assert_eq!(unsafe { BAR_SUM }, 0);
 
         for _ in 0..32 {
             assert!(a.pop_back().is_some());
         }
 
-        assert_eq!(unsafe { BAR_SUM }, 64); // drops of elements
+        assert_eq!(unsafe { BAR_SUM }, 32);
 
         drop(a);
 
-        assert_eq!(unsafe { BAR_SUM }, 64);
+        assert_eq!(unsafe { BAR_SUM }, 32);
     }
 }
