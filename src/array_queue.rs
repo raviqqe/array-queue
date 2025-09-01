@@ -281,14 +281,14 @@ mod test {
         assert_eq!(a.last(), None);
         assert_eq!(a.last_mut(), None);
 
-        assert!(a.push_back(&1).is_ok());
+        assert!(a.push_back(1).is_ok());
 
         assert_eq!(a.first(), Some(&1));
         assert_eq!(a.first_mut(), Some(&mut 1));
         assert_eq!(a.last(), Some(&1));
         assert_eq!(a.last_mut(), Some(&mut 1));
 
-        assert!(a.push_back(&2).is_ok());
+        assert!(a.push_back(2).is_ok());
 
         assert_eq!(a.first(), Some(&1));
         assert_eq!(a.first_mut(), Some(&mut 1));
@@ -301,19 +301,19 @@ mod test {
         let mut a: ArrayQueue<usize, 1> = ArrayQueue::new();
 
         assert_eq!(a.len(), 0);
-        assert!(a.push_back(&42).is_ok());
+        assert!(a.push_back(42).is_ok());
         assert_eq!(a.len(), 1);
-        assert_eq!(a.push_back(&42), Err(CapacityError));
+        assert_eq!(a.push_back(42), Err(CapacityError));
         assert_eq!(a.len(), 1);
 
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert_eq!(a.len(), 0);
-        assert!(a.push_back(&42).is_ok());
+        assert!(a.push_back(42).is_ok());
         assert_eq!(a.len(), 1);
-        assert!(a.push_back(&42).is_ok());
+        assert!(a.push_back(42).is_ok());
         assert_eq!(a.len(), 2);
-        assert_eq!(a.push_back(&42), Err(CapacityError));
+        assert_eq!(a.push_back(42), Err(CapacityError));
         assert_eq!(a.len(), 2);
     }
 
@@ -322,23 +322,23 @@ mod test {
         let mut a: ArrayQueue<usize, 1> = ArrayQueue::new();
 
         assert_eq!(a.len(), 0);
-        assert!(a.push_front(&42).is_ok());
+        assert!(a.push_front(42).is_ok());
         assert_eq!(a.len(), 1);
-        assert_eq!(a.push_front(&42), Err(CapacityError));
+        assert_eq!(a.push_front(42), Err(CapacityError));
         assert_eq!(a.len(), 1);
 
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert_eq!(a.len(), 0);
-        assert!(a.push_front(&1).is_ok());
+        assert!(a.push_front(1).is_ok());
         assert_eq!(a.first(), Some(&1));
         assert_eq!(a.last(), Some(&1));
         assert_eq!(a.len(), 1);
-        assert!(a.push_front(&2).is_ok());
+        assert!(a.push_front(2).is_ok());
         assert_eq!(a.first(), Some(&2));
         assert_eq!(a.last(), Some(&1));
         assert_eq!(a.len(), 2);
-        assert_eq!(a.push_front(&3), Err(CapacityError));
+        assert_eq!(a.push_front(3), Err(CapacityError));
         assert_eq!(a.len(), 2);
     }
 
@@ -346,15 +346,15 @@ mod test {
     fn pop_back() {
         let mut a: ArrayQueue<usize, 1> = ArrayQueue::new();
 
-        assert!(a.push_back(&42).is_ok());
+        assert!(a.push_back(42).is_ok());
 
         assert_eq!(a.pop_back(), Some(42));
         assert_eq!(a.len(), 0);
 
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
-        assert!(a.push_back(&123).is_ok());
-        assert!(a.push_back(&42).is_ok());
+        assert!(a.push_back(123).is_ok());
+        assert!(a.push_back(42).is_ok());
 
         assert_eq!(a.pop_back(), Some(42));
         assert_eq!(a.first(), Some(&123));
@@ -368,15 +368,15 @@ mod test {
     fn pop_front() {
         let mut a: ArrayQueue<usize, 1> = ArrayQueue::new();
 
-        assert!(a.push_back(&42).is_ok());
+        assert!(a.push_back(42).is_ok());
 
         assert_eq!(a.pop_front(), Some(42));
         assert_eq!(a.len(), 0);
 
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
-        assert!(a.push_back(&123).is_ok());
-        assert!(a.push_back(&42).is_ok());
+        assert!(a.push_back(123).is_ok());
+        assert!(a.push_back(42).is_ok());
 
         assert_eq!(a.pop_front(), Some(123));
         assert_eq!(a.first(), Some(&42));
@@ -390,13 +390,13 @@ mod test {
     fn push_and_pop_across_edges() {
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
-        assert!(a.push_back(&1).is_ok());
-        assert!(a.push_back(&2).is_ok());
+        assert!(a.push_back(1).is_ok());
+        assert!(a.push_back(2).is_ok());
 
         for i in 3..64 {
             assert_eq!(a.pop_front(), Some(i - 2));
             assert_eq!(a.len(), 1);
-            assert!(a.push_back(&i).is_ok());
+            assert!(a.push_back(i).is_ok());
             assert_eq!(a.len(), 2);
         }
     }
@@ -413,12 +413,12 @@ mod test {
     #[test]
     fn is_full() {
         let mut a: ArrayQueue<usize, 1> = ArrayQueue::new();
-        assert!(a.push_back(&0).is_ok());
+        assert!(a.push_back(0).is_ok());
         assert!(a.is_full());
 
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
-        assert!(a.push_back(&0).is_ok());
-        assert!(a.push_back(&0).is_ok());
+        assert!(a.push_back(0).is_ok());
+        assert!(a.push_back(0).is_ok());
         assert!(a.is_full());
     }
 
@@ -426,8 +426,8 @@ mod test {
     fn iterator() {
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
-        assert!(a.push_back(&0).is_ok());
-        assert!(a.push_back(&1).is_ok());
+        assert!(a.push_back(0).is_ok());
+        assert!(a.push_back(1).is_ok());
 
         for (i, e) in a.into_iter().enumerate() {
             assert_eq!(*e, i);
@@ -438,10 +438,10 @@ mod test {
     fn iterator_across_edges() {
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
-        assert!(a.push_back(&42).is_ok());
+        assert!(a.push_back(42).is_ok());
         a.pop_front();
-        assert!(a.push_back(&0).is_ok());
-        assert!(a.push_back(&1).is_ok());
+        assert!(a.push_back(0).is_ok());
+        assert!(a.push_back(1).is_ok());
 
         for (i, e) in a.into_iter().enumerate() {
             assert_eq!(*e, i);
@@ -452,8 +452,8 @@ mod test {
     fn iterate_forward_and_backward() {
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
-        assert!(a.push_back(&0).is_ok());
-        assert!(a.push_back(&1).is_ok());
+        assert!(a.push_back(0).is_ok());
+        assert!(a.push_back(1).is_ok());
 
         let mut i = a.into_iter();
 
@@ -467,8 +467,8 @@ mod test {
     fn iterate_forward_and_backward_mutable() {
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
-        assert!(a.push_back(&0).is_ok());
-        assert!(a.push_back(&1).is_ok());
+        assert!(a.push_back(0).is_ok());
+        assert!(a.push_back(1).is_ok());
 
         let mut i = (&mut a).into_iter();
 
@@ -489,8 +489,8 @@ mod test {
     fn iterator_mut() {
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
-        assert!(a.push_back(&0).is_ok());
-        assert!(a.push_back(&1).is_ok());
+        assert!(a.push_back(0).is_ok());
+        assert!(a.push_back(1).is_ok());
 
         for (i, e) in (&mut a).into_iter().enumerate() {
             assert_eq!(*e, i);
@@ -501,8 +501,8 @@ mod test {
     #[test]
     fn reference_elements() {
         let mut a: ArrayQueue<Box<usize>, 2> = ArrayQueue::new();
-        assert!(a.push_back(&Box::new(42)).is_ok());
-        assert!(a.push_front(&Box::new(42)).is_ok());
+        assert!(a.push_back(Box::new(42)).is_ok());
+        assert!(a.push_front(Box::new(42)).is_ok());
     }
 
     #[test]
@@ -510,7 +510,7 @@ mod test {
         let mut a: ArrayQueue<Box<usize>, 32> = ArrayQueue::new();
 
         for _ in 0..32 {
-            assert!(a.push_back(&Box::new(42)).is_ok());
+            assert!(a.push_back(Box::new(42)).is_ok());
         }
 
         let _ = a.clone();
@@ -536,7 +536,7 @@ mod test {
         let mut a: ArrayQueue<Foo, 32> = ArrayQueue::new();
 
         for _ in 0..32 {
-            assert!(a.push_back(&Foo).is_ok());
+            assert!(a.push_back(Foo).is_ok());
         }
 
         assert_eq!(unsafe { FOO_SUM }, 32); // drops of arguments `&Foo`
@@ -566,7 +566,7 @@ mod test {
         let mut a: ArrayQueue<Bar, 32> = ArrayQueue::new();
 
         for _ in 0..32 {
-            assert!(a.push_back(&Bar).is_ok());
+            assert!(a.push_back(Bar).is_ok());
         }
 
         assert_eq!(unsafe { BAR_SUM }, 32); // drops of arguments `&Bar`
