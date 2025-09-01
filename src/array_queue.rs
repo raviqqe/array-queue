@@ -49,9 +49,9 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         }
     }
 
-    fn element_mut(&mut self, i: usize) -> Option<&mut T> {
-        if i < self.length {
-            let x = &mut self.array[self.index(i)];
+    fn element_mut(&mut self, index: usize) -> Option<&mut T> {
+        if index < self.length {
+            let x = &mut self.array[self.index(index)];
 
             Some(unsafe { x.assume_init_mut() })
         } else {
