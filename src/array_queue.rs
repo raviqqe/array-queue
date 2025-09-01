@@ -11,7 +11,7 @@ pub struct ArrayQueue<T, const N: usize> {
 
 impl<T, const N: usize> ArrayQueue<T, N> {
     /// Creates an empty queue.
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             array: [const { MaybeUninit::uninit() }; N],
             start: 0,
@@ -93,7 +93,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Pops an element from the back of the queue.
-    pub fn pop_back(&mut self) -> Option<T> {
+    pub const fn pop_back(&mut self) -> Option<T> {
         if self.is_empty() {
             None
         } else {
@@ -128,11 +128,11 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Returns `true` if the queue is full.
-    pub fn is_full(&self) -> bool {
+    pub const fn is_full(&self) -> bool {
         self.len() == N
     }
 
-    fn index(&self, index: usize) -> usize {
+    const fn index(&self, index: usize) -> usize {
         (self.start + index) % N
     }
 }
