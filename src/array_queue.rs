@@ -157,9 +157,7 @@ impl<T, const N: usize> Default for ArrayQueue<T, N> {
 
 impl<T, const N: usize> Drop for ArrayQueue<T, N> {
     fn drop(&mut self) {
-        for _ in self {
-            // TODO
-        }
+        while let Some(_) = self.pop_back() {}
     }
 }
 
@@ -541,9 +539,9 @@ mod test {
     fn no_drops_of_elements_on_push_back() {
         assert_eq!(unsafe { FOO_SUM }, 0);
 
-        let mut a: ArrayQueue<Foo, 32> = ArrayQueue::new();
+        let mut a: ArrayQueue<Foo, 42> = ArrayQueue::new();
 
-        for _ in 0..32 {
+        for _ in 0..17 {
             assert!(a.push_back(Foo).is_ok());
         }
 
@@ -551,7 +549,7 @@ mod test {
 
         drop(a);
 
-        assert_eq!(unsafe { FOO_SUM }, 32);
+        assert_eq!(unsafe { FOO_SUM }, 17);
     }
 
     static mut BAR_SUM: usize = 0;
