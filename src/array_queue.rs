@@ -99,15 +99,14 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     /// Pops an element from the front of the queue.
     pub fn pop_front(&mut self) -> Option<T> {
         if self.is_empty() {
-            return None;
-        }
+            None
+        } else {
+            let x = replace(&mut self.array[self.start], MaybeUninit::uninit());
+            self.start = self.index(1);
+            self.length -= 1;
 
-        let x = replace(&mut self.array.as_mut()[self.start], unsafe {
-            MaybeUninit::uninit()
-        });
-        self.start = self.index(1);
-        self.length -= 1;
-        Some(x)
+            Some(x)
+        }
     }
 
     /// Returns the number of elements in the queue.
