@@ -594,4 +594,21 @@ mod test {
 
         assert_eq!(unsafe { BAR_SUM }, 32);
     }
+
+    #[test]
+    fn pop_back_from_middle() {
+        let mut xs = ArrayQueue::<Box<usize>, 42>::new();
+
+        for x in 0..42 {
+            assert!(xs.push_back(Box::new(x)).is_ok());
+        }
+
+        for _ in 0..17 {
+            xs.pop_front();
+        }
+
+        for x in 42..17 {
+            assert_eq!(xs.pop_back(), Some(Box::new(x - 1)));
+        }
+    }
 }
