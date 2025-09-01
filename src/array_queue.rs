@@ -20,17 +20,17 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Returns a reference to the first element of the queue, or `None` if it is empty.
-    pub fn first(&self) -> Option<&<A as Array>::Item> {
+    pub fn first(&self) -> Option<&T> {
         self.element(0)
     }
 
     /// Returns a mutable reference to the first element of the queue, or `None` if it is empty.
-    pub fn first_mut(&mut self) -> Option<&mut <A as Array>::Item> {
+    pub fn first_mut(&mut self) -> Option<&mut T> {
         self.element_mut(0)
     }
 
     /// Returns a reference to the last element of the queue, or `None` if it is empty.
-    pub fn last(&self) -> Option<&<A as Array>::Item> {
+    pub fn last(&self) -> Option<&T> {
         if self.is_empty() {
             return None;
         }
@@ -39,7 +39,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Returns a mutable reference to the last element of the queue, or `None` if it is empty.
-    pub fn last_mut(&mut self) -> Option<&mut <A as Array>::Item> {
+    pub fn last_mut(&mut self) -> Option<&mut T> {
         if self.is_empty() {
             return None;
         }
@@ -48,7 +48,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         self.element_mut(i)
     }
 
-    fn element(&self, i: usize) -> Option<&<A as Array>::Item> {
+    fn element(&self, i: usize) -> Option<&T> {
         if self.is_empty() {
             None
         } else {
@@ -56,7 +56,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         }
     }
 
-    fn element_mut(&mut self, i: usize) -> Option<&mut <A as Array>::Item> {
+    fn element_mut(&mut self, i: usize) -> Option<&mut T> {
         if self.is_empty() {
             None
         } else {
@@ -66,7 +66,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Pushes an element to the back of the queue.
-    pub fn push_back(&mut self, x: &<A as Array>::Item) -> Result<(), CapacityError>
+    pub fn push_back(&mut self, x: &T) -> Result<(), CapacityError>
     where
         <A as Array>::Item: Clone,
     {
@@ -161,15 +161,13 @@ where
     }
 }
 
-impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Default
-    for ArrayQueue<A>
-{
+impl<T, const N: usize> Default for ArrayQueue<T, N> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Drop for ArrayQueue<A> {
+impl<T, const N: usize> Drop for ArrayQueue<T, N> {
     fn drop(&mut self) {
         for x in self {
             drop(replace(x, unsafe { uninitialized() }));
@@ -177,10 +175,8 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Drop 
     }
 }
 
-impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> IntoIterator
-    for &'a ArrayQueue<A>
-{
-    type Item = &'a <A as Array>::Item;
+impl<'a, T, const N: usize> IntoIterator for &'a ArrayQueue<T, N> {
+    type Item = &'a T;
     type IntoIter = ArrayQueueIterator<'a, A>;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -194,10 +190,8 @@ impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> I
     }
 }
 
-impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> IntoIterator
-    for &'a mut ArrayQueue<A>
-{
-    type Item = &'a mut <A as Array>::Item;
+impl<'a, T, const N: usize> IntoIterator for &'a mut ArrayQueue<T, N> {
+    type Item = &'a mut T;
     type IntoIter = ArrayQueueMutIterator<'a, A>;
 
     fn into_iter(self) -> Self::IntoIter {
