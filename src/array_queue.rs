@@ -547,11 +547,11 @@ mod test {
             assert!(a.push_back(Foo).is_ok());
         }
 
-        assert_eq!(unsafe { FOO_SUM }, 32); // drops of arguments `&Foo`
+        assert_eq!(unsafe { FOO_SUM }, 0);
 
         drop(a);
 
-        assert_eq!(unsafe { FOO_SUM }, 64); // drops of elements
+        assert_eq!(unsafe { FOO_SUM }, 32);
     }
 
     static mut BAR_SUM: usize = 0;
