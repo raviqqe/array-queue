@@ -60,17 +60,17 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Pushes an element to the back of the queue.
-    pub fn push_back(&mut self, x: &T) -> Result<(), CapacityError>
-    where
-        T: Clone,
-    {
+    pub fn push_back(&mut self, x: T) -> Result<(), CapacityError> {
         if self.is_full() {
             return Err(CapacityError);
         }
 
-        let i = self.index(self.length);
-        forget(replace(&mut self.array[i], x.clone()));
+        replace(
+            &mut self.array[self.index(self.length)],
+            MaybeUninit::new(x),
+        );
         self.length += 1;
+
         Ok(())
     }
 
