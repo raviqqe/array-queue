@@ -481,7 +481,7 @@ mod test {
     }
 
     #[test]
-    fn iterate_forward_and_backward_mutablly() {
+    fn iterate_forward_and_backward_mutable() {
         let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
 
         assert!(a.push_back(&0).is_ok());
