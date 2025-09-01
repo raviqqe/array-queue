@@ -1,5 +1,5 @@
 use crate::error::CapacityError;
-use core::mem::{MaybeUninit, drop, forget, replace};
+use core::mem::{MaybeUninit, replace};
 
 /// A queue backed by a fixed-size array.
 #[derive(Debug)]
@@ -65,27 +65,22 @@ impl<T, const N: usize> ArrayQueue<T, N> {
             return Err(CapacityError);
         }
 
-        replace(
-            &mut self.array[self.index(self.length)],
-            MaybeUninit::new(x),
-        );
+        self.array[self.index(self.length)] = MaybeUninit::new(x);
         self.length += 1;
 
         Ok(())
     }
 
     /// Pushes an element to the front of the queue.
-    pub fn push_front(&mut self, x: &T) -> Result<(), CapacityError>
-    where
-        T: Clone,
-    {
+    pub fn push_front(&mut self, x: T) -> Result<(), CapacityError> {
         if self.is_full() {
             return Err(CapacityError);
         }
 
         self.start = self.index(N - 1);
-        forget(replace(&mut self.array.as_mut()[self.start], x.clone()));
+        self.array[self.start] = MaybeUninit::new(x);
         self.length += 1;
+
         Ok(())
     }
 
@@ -94,11 +89,10 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         if self.is_empty() {
             None
         } else {
-            let x = replace(&mut self.array.as_mut()[self.length - 1], unsafe {
-                MaybeUninit::uninit()
-            });
+            let x = replace(&mut self.array[self.length - 1], MaybeUninit::uninit());
             self.length -= 1;
-            Some(x)
+
+            Some(unsafe { x.assume_init() })
         }
     }
 
@@ -156,9 +150,7 @@ impl<T, const N: usize> Default for ArrayQueue<T, N> {
 
 impl<T, const N: usize> Drop for ArrayQueue<T, N> {
     fn drop(&mut self) {
-        for x in self {
-            drop(replace(x, unsafe { MaybeUninit::uninit() }));
-        }
+        for _ in self {}
     }
 }
 
