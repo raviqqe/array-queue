@@ -13,7 +13,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     /// Creates an empty queue.
     pub fn new() -> Self {
         Self {
-            array: Default::default(),
+            array: [const { MaybeUninit::uninit() }; N],
             start: 0,
             length: 0,
         }
