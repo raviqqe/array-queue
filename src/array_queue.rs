@@ -597,17 +597,20 @@ mod test {
 
     #[test]
     fn pop_back_from_middle() {
-        let mut xs = ArrayQueue::<Box<usize>, 42>::new();
+        const LENGTH: usize = 42;
+        const MIDDLE: usize = 17;
 
-        for x in 0..42 {
+        let mut xs = ArrayQueue::<Box<usize>, LENGTH>::new();
+
+        for x in 0..LENGTH {
             assert!(xs.push_back(Box::new(x)).is_ok());
         }
 
-        for _ in 0..17 {
+        for _ in 0..MIDDLE {
             xs.pop_front();
         }
 
-        for x in 42..17 {
+        for x in LENGTH..MIDDLE {
             assert_eq!(xs.pop_back(), Some(Box::new(x - 1)));
         }
     }
