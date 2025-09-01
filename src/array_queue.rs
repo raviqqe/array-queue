@@ -1,4 +1,4 @@
-use std::mem::{drop, forget, replace, uninitialized, ManuallyDrop};
+use core::mem::{drop, forget, replace, uninitialized, ManuallyDrop};
 
 use arrayvec::Array;
 
@@ -13,7 +13,7 @@ pub struct ArrayQueue<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Arra
 
 impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> ArrayQueue<A> {
     pub fn new() -> Self {
-        ArrayQueue {
+        Self {
             array: unsafe { uninitialized() },
             start: 0,
             length: 0,
@@ -115,7 +115,7 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
         Some(x)
     }
 
-    pub fn len(&self) -> usize {
+    pub const fn len(&self) -> usize {
         self.length
     }
 
@@ -155,7 +155,7 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Defau
     for ArrayQueue<A>
 {
     fn default() -> Self {
-        ArrayQueue::new()
+        Self::new()
     }
 }
 
@@ -214,7 +214,7 @@ pub struct ArrayQueueIterator<
 impl<'a, A: 'a + Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>>
     ArrayQueueIterator<'a, A>
 {
-    fn exhausted(&self) -> bool {
+    const fn exhausted(&self) -> bool {
         self.first >= self.last
     }
 }
@@ -262,7 +262,7 @@ pub struct ArrayQueueMutIterator<
 impl<'a, A: 'a + Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>>
     ArrayQueueMutIterator<'a, A>
 {
-    fn exhausted(&self) -> bool {
+    const fn exhausted(&self) -> bool {
         self.first >= self.last
     }
 }
