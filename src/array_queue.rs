@@ -109,7 +109,7 @@ impl<A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Array
         Some(x)
     }
 
-    /// Pops an element from the fonrt of the queue.
+    /// Pops an element from the front of the queue.
     pub fn pop_front(&mut self) -> Option<<A as Array>::Item> {
         if self.is_empty() {
             return None;
