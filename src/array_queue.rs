@@ -31,21 +31,12 @@ impl<T, const N: usize> ArrayQueue<T, N> {
 
     /// Returns a reference to the last element of the queue, or `None` if it is empty.
     pub fn last(&self) -> Option<&T> {
-        if self.is_empty() {
-            return None;
-        }
-
         self.element(self.length - 1)
     }
 
     /// Returns a mutable reference to the last element of the queue, or `None` if it is empty.
     pub fn last_mut(&mut self) -> Option<&mut T> {
-        if self.is_empty() {
-            return None;
-        }
-
-        let i = self.length - 1;
-        self.element_mut(i)
+        self.element_mut(self.length - 1)
     }
 
     fn element(&self, i: usize) -> Option<&T> {
