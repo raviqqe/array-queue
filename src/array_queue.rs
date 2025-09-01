@@ -201,7 +201,7 @@ impl<'a, T, const N: usize> DoubleEndedIterator for ArrayQueueIterator<'a, T, N>
             return None;
         }
 
-        let x = self.queue.element(self.last);
+        let x = self.queue.element(self.last - 1);
         self.last -= x.is_some() as usize;
         x
     }
@@ -255,7 +255,7 @@ impl<'a, T, const N: usize> DoubleEndedIterator for ArrayQueueMutIterator<'a, T,
             return None;
         }
 
-        let x = self.queue.element_mut(self.last);
+        let x = self.queue.element_mut(self.last - 1);
         self.last -= x.is_some() as usize;
         x.map(|x| unsafe { transmute(x) })
     }
@@ -450,7 +450,7 @@ mod test {
 
     #[test]
     fn iterate_forward_and_backward() {
-        let mut a: ArrayQueue<usize, 2> = ArrayQueue::new();
+        let mut a = ArrayQueue::<usize, 2>::new();
 
         assert!(a.push_back(0).is_ok());
         assert!(a.push_back(1).is_ok());
