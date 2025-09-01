@@ -81,7 +81,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 
     /// Pushes an element to the front of the queue.
-    pub fn push_front(&mut self, x: &<A as Array>::Item) -> Result<(), CapacityError>
+    pub fn push_front(&mut self, x: &T) -> Result<(), CapacityError>
     where
         T: Clone,
     {
