@@ -155,36 +155,6 @@ impl<T, const N: usize> Drop for ArrayQueue<T, N> {
     }
 }
 
-impl<'a, T, const N: usize> IntoIterator for &'a ArrayQueue<T, N> {
-    type Item = &'a T;
-    type IntoIter = ArrayQueueIterator<'a, T, N>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        let l = self.len();
-
-        ArrayQueueIterator {
-            queue: self,
-            first: 0,
-            last: l,
-        }
-    }
-}
-
-impl<'a, T, const N: usize> IntoIterator for &'a mut ArrayQueue<T, N> {
-    type Item = &'a mut T;
-    type IntoIter = ArrayQueueMutIterator<'a, T, N>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        let l = self.len();
-
-        ArrayQueueMutIterator {
-            queue: self,
-            first: 0,
-            last: l,
-        }
-    }
-}
-
 #[derive(Debug)]
 pub struct ArrayQueueIterator<'a, T, const N: usize> {
     queue: &'a ArrayQueue<T, N>,
@@ -193,8 +163,21 @@ pub struct ArrayQueueIterator<'a, T, const N: usize> {
 }
 
 impl<'a, T, const N: usize> ArrayQueueIterator<'a, T, N> {
-    const fn exhausted(&self) -> bool {
+    const fn is_exhausted(&self) -> bool {
         self.first >= self.last
+    }
+}
+
+impl<'a, T, const N: usize> IntoIterator for &'a ArrayQueue<T, N> {
+    type Item = &'a T;
+    type IntoIter = ArrayQueueIterator<'a, T, N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        ArrayQueueIterator {
+            queue: self,
+            first: 0,
+            last: self.len(),
+        }
     }
 }
 
@@ -202,25 +185,25 @@ impl<'a, T, const N: usize> Iterator for ArrayQueueIterator<'a, T, N> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.exhausted() {
+        if self.is_exhausted() {
             return None;
         }
 
-        let x = &self.queue.array.as_ref()[self.queue.index(self.first)];
-        self.first += 1;
-        Some(x)
+        let x = self.queue.element(self.first);
+        self.first += x.is_some() as usize;
+        x
     }
 }
 
 impl<'a, T, const N: usize> DoubleEndedIterator for ArrayQueueIterator<'a, T, N> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        if self.exhausted() {
+        if self.is_exhausted() {
             return None;
         }
 
-        self.last -= 1;
-        let x = &self.queue.array.as_ref()[self.queue.index(self.last)];
-        Some(x)
+        let x = self.queue.element(self.last);
+        self.last -= x.is_some() as usize;
+        x
     }
 }
 
@@ -232,8 +215,23 @@ pub struct ArrayQueueMutIterator<'a, T, const N: usize> {
 }
 
 impl<'a, T, const N: usize> ArrayQueueMutIterator<'a, T, N> {
-    const fn exhausted(&self) -> bool {
+    const fn is_exhausted(&self) -> bool {
         self.first >= self.last
+    }
+}
+
+impl<'a, T, const N: usize> IntoIterator for &'a mut ArrayQueue<T, N> {
+    type Item = &'a mut T;
+    type IntoIter = ArrayQueueMutIterator<'a, T, N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        let last = self.len();
+
+        ArrayQueueMutIterator {
+            queue: self,
+            first: 0,
+            last,
+        }
     }
 }
 
@@ -241,7 +239,7 @@ impl<'a, T, const N: usize> Iterator for ArrayQueueMutIterator<'a, T, N> {
     type Item = &'a mut T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if self.exhausted() {
+        if self.is_exhausted() {
             return None;
         }
 
@@ -254,7 +252,7 @@ impl<'a, T, const N: usize> Iterator for ArrayQueueMutIterator<'a, T, N> {
 
 impl<'a, T, const N: usize> DoubleEndedIterator for ArrayQueueMutIterator<'a, T, N> {
     fn next_back(&mut self) -> Option<Self::Item> {
-        if self.exhausted() {
+        if self.is_exhausted() {
             return None;
         }
 
