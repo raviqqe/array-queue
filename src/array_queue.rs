@@ -99,7 +99,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         if self.is_empty() {
             None
         } else {
-            let x = replace(&mut self.array[self.start], MaybeUninit::uninit());
+            let x = replace(&mut self.array[self.index(0)], MaybeUninit::uninit());
             self.start = self.index(1);
             self.length -= 1;
 
@@ -113,7 +113,10 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         if self.is_empty() {
             None
         } else {
-            let x = replace(&mut self.array[self.length - 1], MaybeUninit::uninit());
+            let x = replace(
+                &mut self.array[self.index(self.length - 1)],
+                MaybeUninit::uninit(),
+            );
             self.length -= 1;
 
             // SAFETY: An element exists at the last index.
