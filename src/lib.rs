@@ -2,6 +2,8 @@
 
 #![no_std]
 
+extern crate alloc;
+
 mod array_queue;
 mod error;
 
