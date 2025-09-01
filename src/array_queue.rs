@@ -39,9 +39,9 @@ impl<T, const N: usize> ArrayQueue<T, N> {
         self.element_mut(self.length - 1)
     }
 
-    fn element(&self, i: usize) -> Option<&T> {
-        if i < self.length {
-            let x = &self.array[self.index(i)];
+    fn element(&self, index: usize) -> Option<&T> {
+        if index < self.length {
+            let x = &self.array[self.index(index)];
 
             Some(unsafe { x.assume_init_ref() })
         } else {
