@@ -31,7 +31,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
 
     /// Returns a reference to the last element of the queue, or `None` if it is empty.
     pub fn last(&self) -> Option<&T> {
-        self.element(self.length - 1)
+        self.element(N + self.length - 1)
     }
 
     /// Returns a mutable reference to the last element of the queue, or `None` if it is empty.
