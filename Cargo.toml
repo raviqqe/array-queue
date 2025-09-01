@@ -1,13 +1,12 @@
 [package]
 name = "array-queue"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Yota Toyama <raviqqe@gmail.com>"]
 edition = "2024"
 description = "Fixed size bidirectional queues based on arrays"
 license = "MIT"
 
 [dependencies]
-arrayvec = "0.4"
 
 [lints.clippy]
 alloc_instead_of_core = "deny"
