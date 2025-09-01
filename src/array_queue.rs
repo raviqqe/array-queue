@@ -89,7 +89,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
             return Err(CapacityError);
         }
 
-        self.start = self.index(Self::capacity() - 1);
+        self.start = self.index(N - 1);
         forget(replace(&mut self.array.as_mut()[self.start], x.clone()));
         self.length += 1;
         Ok(())
@@ -142,7 +142,7 @@ impl<T, const N: usize> ArrayQueue<T, N> {
     }
 }
 
-impl<T: Clone, const N: usize> Clone for ArrayQueue<A> {
+impl<T: Clone, const N: usize> Clone for ArrayQueue<T, N> {
     fn clone(&self) -> Self {
         let mut a = Self::new();
 
@@ -170,7 +170,7 @@ impl<T, const N: usize> Drop for ArrayQueue<T, N> {
 
 impl<'a, T, const N: usize> IntoIterator for &'a ArrayQueue<T, N> {
     type Item = &'a T;
-    type IntoIter = ArrayQueueIterator<'a, A>;
+    type IntoIter = ArrayQueueIterator<'a, T, N>;
 
     fn into_iter(self) -> Self::IntoIter {
         let l = self.len();
@@ -185,7 +185,7 @@ impl<'a, T, const N: usize> IntoIterator for &'a ArrayQueue<T, N> {
 
 impl<'a, T, const N: usize> IntoIterator for &'a mut ArrayQueue<T, N> {
     type Item = &'a mut T;
-    type IntoIter = ArrayQueueMutIterator<'a, A>;
+    type IntoIter = ArrayQueueMutIterator<'a, T, N>;
 
     fn into_iter(self) -> Self::IntoIter {
         let l = self.len();
@@ -199,27 +199,20 @@ impl<'a, T, const N: usize> IntoIterator for &'a mut ArrayQueue<T, N> {
 }
 
 #[derive(Debug)]
-pub struct ArrayQueueIterator<
-    'a,
-    A: 'a + Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>,
-> {
-    queue: &'a ArrayQueue<A>,
+pub struct ArrayQueueIterator<'a, T, const N: usize> {
+    queue: &'a ArrayQueue<T, N>,
     first: usize,
     last: usize,
 }
 
-impl<'a, A: 'a + Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>>
-    ArrayQueueIterator<'a, A>
-{
+impl<'a, T, const N: usize> ArrayQueueIterator<'a, T, N> {
     const fn exhausted(&self) -> bool {
         self.first >= self.last
     }
 }
 
-impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Iterator
-    for ArrayQueueIterator<'a, A>
-{
-    type Item = &'a <A as Array>::Item;
+impl<'a, T, const N: usize> Iterator for ArrayQueueIterator<'a, T, N> {
+    type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.exhausted() {
@@ -232,9 +225,7 @@ impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> I
     }
 }
 
-impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> DoubleEndedIterator
-    for ArrayQueueIterator<'a, A>
-{
+impl<'a, T, const N: usize> DoubleEndedIterator for ArrayQueueIterator<'a, T, N> {
     fn next_back(&mut self) -> Option<Self::Item> {
         if self.exhausted() {
             return None;
@@ -247,27 +238,20 @@ impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> D
 }
 
 #[derive(Debug)]
-pub struct ArrayQueueMutIterator<
-    'a,
-    A: 'a + Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>,
-> {
-    queue: &'a mut ArrayQueue<A>,
+pub struct ArrayQueueMutIterator<'a, T, const N: usize> {
+    queue: &'a mut ArrayQueue<T, N>,
     first: usize,
     last: usize,
 }
 
-impl<'a, A: 'a + Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>>
-    ArrayQueueMutIterator<'a, A>
-{
+impl<'a, T, const N: usize> ArrayQueueMutIterator<'a, T, N> {
     const fn exhausted(&self) -> bool {
         self.first >= self.last
     }
 }
 
-impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> Iterator
-    for ArrayQueueMutIterator<'a, A>
-{
-    type Item = &'a mut <A as Array>::Item;
+impl<'a, T, const N: usize> Iterator for ArrayQueueMutIterator<'a, T, N> {
+    type Item = &'a mut T;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.exhausted() {
@@ -275,15 +259,13 @@ impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> I
         }
 
         let i = self.queue.index(self.first);
-        let x = &mut self.queue.array.as_mut()[i] as *mut <A as Array>::Item;
+        let x = &mut self.queue.array.as_mut()[i] as *mut T;
         self.first += 1;
         Some(unsafe { &mut *x })
     }
 }
 
-impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> DoubleEndedIterator
-    for ArrayQueueMutIterator<'a, A>
-{
+impl<'a, T, const N: usize> DoubleEndedIterator for ArrayQueueMutIterator<'a, T, N> {
     fn next_back(&mut self) -> Option<Self::Item> {
         if self.exhausted() {
             return None;
@@ -291,7 +273,7 @@ impl<'a, A: Array + AsRef<[<A as Array>::Item]> + AsMut<[<A as Array>::Item]>> D
 
         self.last -= 1;
         let i = self.queue.index(self.last);
-        let x = &mut self.queue.array.as_mut()[i] as *mut <A as Array>::Item;
+        let x = &mut self.queue.array.as_mut()[i] as *mut T;
         Some(unsafe { &mut *x })
     }
 }
