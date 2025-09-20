@@ -1,7 +1,6 @@
 [package]
 name = "array-queue"
-version = "0.4.1"
-authors = ["Yota Toyama <raviqqe@gmail.com>"]
+version = "0.4.2"
 edition = "2024"
 description = "Fixed size bidirectional queues based on arrays"
 license = "MIT"
